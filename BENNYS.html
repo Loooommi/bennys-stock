@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Benny's - Gestion Stocks</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #ff0e0e8f 0%, #cc0000 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+        
+        .header .subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        .status-bar {
+            padding: 15px 25px;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+        
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #dc3545;
+            animation: pulse 2s infinite;
+        }
+        
+        .status-dot.connected {
+            background: #28a745;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .last-sync {
+            font-size: 12px;
+            color: #6c757d;
+        }
+        
+        .inventory-section {
+            padding: 25px;
+        }
+        
+        .section-title {
+            margin-bottom: 20px;
+            margin-top: 30px;
+            color: #212529;
+            font-size: 20px;
+            font-weight: 600;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #ff0e0e8f;
+        }
+        
+        .section-title:first-child {
+            margin-top: 0;
+        }
+        
+        .inventory-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .inventory-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            border: 2px solid #dee2e6;
+            transition: all 0.3s;
+        }
+        
+        .inventory-card:active {
+            transform: scale(0.98);
+        }
+        
+        .inventory-card.essence {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffe69c 100%);
+            border-color: #ffc107;
+        }
+        
+        .inventory-card.petrole {
+            background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+            border-color: #17a2b8;
+        }
+        
+        .inventory-card.bidon-vide {
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+            border-color: #dc3545;
+        }
+        
+        .inventory-card.bidon-essence {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            border-color: #28a745;
+        }
+        
+        .inventory-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+        
+        .inventory-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 8px;
+        }
+        
+        .inventory-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #212529;
+        }
+        
+        .inventory-unit {
+            font-size: 14px;
+            color: #6c757d;
+            margin-left: 5px;
+        }
+        
+        .update-form {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 30px;
+        }
+        
+        .update-form h3 {
+            color: #212529;
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .form-group {
+            margin-bottom: 0;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #495057;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #2a5298;
+            box-shadow: 0 0 0 3px rgba(42, 82, 152, 0.1);
+        }
+        
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-right: 10px;
+            margin-top: 10px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+        }
+        
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .history-section {
+            padding: 25px;
+            background: #f8f9fa;
+        }
+        
+        .history-section h2 {
+            color: #212529;
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .history-table {
+            width: 100%;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .history-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .history-table th {
+            background: #2a5298;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        
+        .history-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e9ecef;
+            font-size: 14px;
+        }
+        
+        .history-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .history-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .alert.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        
+        @media (max-width: 768px) {
+            .inventory-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .header h1 {
+                font-size: 24px;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🧰 Benny's</h1>
+            <div class="subtitle">Gestion des Stocks</div>
+        </div>
+        
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div class="status-indicator">
+                <div class="status-dot" id="statusDot"></div>
+                <span id="statusText">Déconnecté</span>
+            </div>
+            <div class="last-sync" id="lastSync">Jamais synchronisé</div>
+        </div>
+        
+        <!-- Alert Messages -->
+        <div id="alertContainer" style="padding: 0 25px; padding-top: 20px;"></div>
+        
+        <!-- Inventory Display -->
+        <div class="inventory-section">    
+            <!-- Kits Finaux -->
+            <h2 class="section-title">📦 Kits Finaux</h2>
+            <div class="inventory-grid">
+                <div class="inventory-card bidon-essence">
+                    <div class="inventory-icon">⚙️</div>
+                    <div class="inventory-label">Kit Moteurs</div>
+                    <div class="inventory-value">
+                        <span id="stockMoteurs">0</span>
+                        <span class="inventory-unit">unités</span>
+                    </div>
+                </div>
+                
+                <div class="inventory-card bidon-essence">
+                    <div class="inventory-icon">✅</div>
+                    <div class="inventory-label">Kit Full</div>
+                    <div class="inventory-value">
+                        <span id="stockFull">0</span>
+                        <span class="inventory-unit">unités</span>
+                    </div>
+                </div>
+                
+                <div class="inventory-card bidon-essence">
+                    <div class="inventory-icon">🧹</div>
+                    <div class="inventory-label">Kit Nettoyage</div>
+                    <div class="inventory-value">
+                        <span id="stockNettoyage">0</span>
+                        <span class="inventory-unit">unités</span>
+                    </div>
+                </div>
+                
+                <div class="inventory-card bidon-essence">
+                    <div class="inventory-icon">🛞</div>
+                    <div class="inventory-label">Kit Pneus</div>
+                    <div class="inventory-value">
+                        <span id="stockPneus">0</span>
+                        <span class="inventory-unit">unités</span>
+                    </div>
+                </div>
+            </div>
+                        <!-- Kits Fonderie -->
+            <h2 class="section-title">📊 Kits Fonderie</h2>
+            <div class="inventory-grid">
+                <div class="inventory-card essence">
+                    <div class="inventory-icon">🔧</div>
+                    <div class="inventory-label">Clé</div>
+                    <div class="inventory-value">
+                        <span id="stockCle">0</span>
+                        <span class="inventory-unit">unités</span>
+                    </div>
+                </div>
+                
+                <div class="inventory-card petrole">
+                    <div class="inventory-icon">🧰</div>
+                    <div class="inventory-label">Boîte à outils</div>
+                    <div class="inventory-value">
+                        <span id="stockBoiteOutils">0</span>
+                        <span class="inventory-unit">unités</span>
+                    </div>
+                </div>
+                
+                <div class="inventory-card petrole">
+                    <div class="inventory-icon">🔩</div>
+                    <div class="inventory-label">Ensemble de tournevis</div>
+                    <div class="inventory-value">
+                        <span id="stockTournevis">0</span>
+                        <span class="inventory-unit">unités</span>
+                    </div>
+                </div>
+                
+                <div class="inventory-card petrole">
+                    <div class="inventory-icon">♻️</div>
+                    <div class="inventory-label">Ferraille</div>
+                    <div class="inventory-value">
+                        <span id="stockFerraille">0</span>
+                        <span class="inventory-unit">unités</span>
+                    </div>
+                </div>
+            </div>
+            <!-- Composants des Kits -->
+            <h2 class="section-title">🔧 Composants Kits Nettoyage & Pneus</h2>
+            <div class="inventory-grid">
+                <div class="inventory-card petrole">
+                    <div class="inventory-icon">🧽</div>
+                    <div class="inventory-label">Éponge</div>
+                    <div class="inventory-value">
+                        <span id="stockEponge">0</span>
+                        <span class="inventory-unit">unités</span>
+                    </div>
+                </div>
+                
+                <div class="inventory-card bidon-vide">
+                    <div class="inventory-icon">💧</div>
+                    <div class="inventory-label">Eau</div>
+                    <div class="inventory-value">
+                        <span id="stockEau">0</span>
+                        <span class="inventory-unit">unités</span>
+                    </div>
+                </div>
+                
+                <div class="inventory-card bidon-essence">
+                    <div class="inventory-icon">🧪</div>
+                    <div class="inventory-label">Solvant</div>
+                    <div class="inventory-value">
+                        <span id="stockSolvant">0</span>
+                        <span class="inventory-unit">unités</span>
+                    </div>
+                </div>
+                
+                <div class="inventory-card bidon-essence">
+                    <div class="inventory-icon">⚫</div>
+                    <div class="inventory-label">Caoutchouc</div>
+                    <div class="inventory-value">
+                        <span id="stockCaoutchouc">0</span>
+                        <span class="inventory-unit">unités</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Update Form -->
+            <div class="update-form">
+                <h3>✏️ Mettre à jour les stocks</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Clé</label>
+                        <input type="number" id="inputCle" value="0" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Boîte à outils</label>
+                        <input type="number" id="inputBoiteOutils" value="0" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Tournevis</label>
+                        <input type="number" id="inputTournevis" value="0" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Ferraille</label>
+                        <input type="number" id="inputFerraille" value="0" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Éponge</label>
+                        <input type="number" id="inputEponge" value="0" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Eau</label>
+                        <input type="number" id="inputEau" value="0" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Solvant</label>
+                        <input type="number" id="inputSolvant" value="0" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Caoutchouc</label>
+                        <input type="number" id="inputCaoutchouc" value="0" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Moteurs</label>
+                        <input type="number" id="inputMoteurs" value="0" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Full</label>
+                        <input type="number" id="inputFull" value="0" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Nettoyage</label>
+                        <input type="number" id="inputNettoyage" value="0" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Pneus</label>
+                        <input type="number" id="inputPneus" value="0" min="0">
+                    </div>
+                </div>
+                
+                <button class="btn btn-success" onclick="saveToSheet()">💾 Enregistrer dans Google Sheets</button>
+                <button class="btn btn-primary" onclick="loadFromSheet()">🔄 Recharger depuis Sheets</button>
+            </div>
+        </div>
+        
+        <!-- History Section -->
+        <div class="history-section">
+            <h2>📜 Historique des Modifications</h2>
+            <div class="history-table">
+                <table id="historyTable">
+                    <thead>
+                        <tr>
+                            <th>Date/Heure</th>
+                            <th>Clé</th>
+                            <th>Boîte</th>
+                            <th>Ferraille</th>
+                            <th>Solvant</th>
+                            <th>Moteurs</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyBody">
+                        <tr>
+                            <td colspan="6" style="text-align: center; color: #6c757d;">
+                                Aucun historique disponible
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQxIfXkcGetu0RD35mFr_7d8vyC-5QwOjyx9pKOnu9I2gMYWcz9m-pIFloY21JRJyvpRvhX91NZ7LT6/pubhtml?gid=0&single=true';
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwGkepd8OPbFHzUYlOHRKFGhuS6CuJDjqTI7ebB0wETuwa58_Q2CBvPHPJLPsQGP1Fm/exec';
+        
+        let currentData = {
+            cle: 0,
+            boiteOutils: 0,
+            tournevis: 0,
+            ferraille: 0,
+            eponge: 0,
+            eau: 0,
+            solvant: 0,
+            caoutchouc: 0,
+            moteurs: 0,
+            full: 0,
+            nettoyage: 0,
+            pneus: 0
+        };
+        
+        let sheetConnected = false;
+        let sheetUrl = SHEET_CSV_URL;
+        let writeUrl = APPS_SCRIPT_URL;
+
+        function showAlert(message, type = 'success') {
+            const container = document.getElementById('alertContainer');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type} show`;
+            alert.textContent = message;
+            container.appendChild(alert);
+            
+            setTimeout(() => {
+                alert.remove();
+            }, 5000);
+        }
+
+        function updateStatus(connected) {
+            const dot = document.getElementById('statusDot');
+            const text = document.getElementById('statusText');
+            
+            if (connected) {
+                dot.classList.add('connected');
+                text.textContent = 'Connecté à Google Sheets';
+                sheetConnected = true;
+            } else {
+                dot.classList.remove('connected');
+                text.textContent = 'Déconnecté';
+                sheetConnected = false;
+            }
+        }
+
+        function updateLastSync() {
+            const lastSync = document.getElementById('lastSync');
+            const now = new Date();
+            lastSync.textContent = `Dernière synchro: ${now.toLocaleString('fr-FR')}`;
+        }
+
+        function updateDisplay() {
+            // Mise à jour de l'affichage pour tous les items
+            document.getElementById('stockCle').textContent = currentData.cle;
+            document.getElementById('stockBoiteOutils').textContent = currentData.boiteOutils;
+            document.getElementById('stockTournevis').textContent = currentData.tournevis;
+            document.getElementById('stockFerraille').textContent = currentData.ferraille;
+            document.getElementById('stockEponge').textContent = currentData.eponge;
+            document.getElementById('stockEau').textContent = currentData.eau;
+            document.getElementById('stockSolvant').textContent = currentData.solvant;
+            document.getElementById('stockCaoutchouc').textContent = currentData.caoutchouc;
+            document.getElementById('stockMoteurs').textContent = currentData.moteurs;
+            document.getElementById('stockFull').textContent = currentData.full;
+            document.getElementById('stockNettoyage').textContent = currentData.nettoyage;
+            document.getElementById('stockPneus').textContent = currentData.pneus;
+            
+            // Mise à jour des inputs
+            document.getElementById('inputCle').value = currentData.cle;
+            document.getElementById('inputBoiteOutils').value = currentData.boiteOutils;
+            document.getElementById('inputTournevis').value = currentData.tournevis;
+            document.getElementById('inputFerraille').value = currentData.ferraille;
+            document.getElementById('inputEponge').value = currentData.eponge;
+            document.getElementById('inputEau').value = currentData.eau;
+            document.getElementById('inputSolvant').value = currentData.solvant;
+            document.getElementById('inputCaoutchouc').value = currentData.caoutchouc;
+            document.getElementById('inputMoteurs').value = currentData.moteurs;
+            document.getElementById('inputFull').value = currentData.full;
+            document.getElementById('inputNettoyage').value = currentData.nettoyage;
+            document.getElementById('inputPneus').value = currentData.pneus;
+        }
+
+        async function connectSheet() {
+            if (!sheetUrl || sheetUrl === 'COLLEZ_VOTRE_URL_CSV_ICI') {
+                showAlert('⚠️ Veuillez configurer SHEET_CSV_URL dans le code', 'warning');
+                return;
+            }
+            
+            try {
+                showAlert('🔄 Connexion en cours...', 'warning');
+                await loadFromSheet();
+                updateStatus(true);
+                showAlert('✅ Connecté avec succès à Google Sheets!', 'success');
+            } catch (error) {
+                updateStatus(false);
+                showAlert('❌ Erreur de connexion: ' + error.message, 'error');
+            }
+        }
+
+        async function loadFromSheet() {
+            if (!sheetUrl) {
+                showAlert('❌ Veuillez d\'abord connecter un Google Sheet', 'error');
+                return;
+            }
+            
+            try {
+                showAlert('📥 Chargement des données...', 'warning');
+                
+                const response = await fetch(sheetUrl);
+                const csvText = await response.text();
+                
+                const lines = csvText.split('\n').filter(line => line.trim());
+                
+                if (lines.length < 2) {
+                    showAlert('⚠️ Aucune donnée trouvée. Initialisation...', 'warning');
+                    return;
+                }
+                
+                const lastLine = lines[lines.length - 1];
+                const values = parseCSVLine(lastLine);
+                
+                // Adapter selon votre structure de données dans le Google Sheet
+                if (values.length >= 13) {
+                    currentData.cle = parseInt(values[1]) || 0;
+                    currentData.boiteOutils = parseInt(values[2]) || 0;
+                    currentData.tournevis = parseInt(values[3]) || 0;
+                    currentData.ferraille = parseInt(values[4]) || 0;
+                    currentData.eponge = parseInt(values[5]) || 0;
+                    currentData.eau = parseInt(values[6]) || 0;
+                    currentData.solvant = parseInt(values[7]) || 0;
+                    currentData.caoutchouc = parseInt(values[8]) || 0;
+                    currentData.moteurs = parseInt(values[9]) || 0;
+                    currentData.full = parseInt(values[10]) || 0;
+                    currentData.nettoyage = parseInt(values[11]) || 0;
+                    currentData.pneus = parseInt(values[12]) || 0;
+                }
+                
+                updateDisplay();
+                updateLastSync();
+                loadHistory(lines);
+                showAlert('✅ Données chargées avec succès!', 'success');
+                
+            } catch (error) {
+                showAlert('❌ Erreur lors du chargement: ' + error.message, 'error');
+                console.error('Erreur détaillée:', error);
+            }
+        }
+
+        function parseCSVLine(line) {
+            const values = [];
+            let current = '';
+            let inQuotes = false;
+            
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                
+                if (char === '"') {
+                    inQuotes = !inQuotes;
+                } else if (char === ',' && !inQuotes) {
+                    values.push(current.trim());
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            
+            values.push(current.trim());
+            return values;
+        }
+
+        function loadHistory(lines) {
+            const tbody = document.getElementById('historyBody');
+            tbody.innerHTML = '';
+            
+            const dataLines = lines.slice(1);
+            const recentLines = dataLines.slice(-10).reverse();
+            
+            if (recentLines.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #6c757d;">Aucun historique disponible</td></tr>';
+                return;
+            }
+            
+            recentLines.forEach(line => {
+                const values = parseCSVLine(line);
+                if (values.length >= 6) {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${values[0]}</td>
+                        <td>${values[1]}</td>
+                        <td>${values[2]}</td>
+                        <td>${values[4]}</td>
+                        <td>${values[7]}</td>
+                        <td>${values[9]}</td>
+                    `;
+                    tbody.appendChild(row);
+                }
+            });
+        }
+
+        async function saveToSheet() {
+            // Récupérer toutes les valeurs
+            currentData.cle = parseInt(document.getElementById('inputCle').value) || 0;
+            currentData.boiteOutils = parseInt(document.getElementById('inputBoiteOutils').value) || 0;
+            currentData.tournevis = parseInt(document.getElementById('inputTournevis').value) || 0;
+            currentData.ferraille = parseInt(document.getElementById('inputFerraille').value) || 0;
+            currentData.eponge = parseInt(document.getElementById('inputEponge').value) || 0;
+            currentData.eau = parseInt(document.getElementById('inputEau').value) || 0;
+            currentData.solvant = parseInt(document.getElementById('inputSolvant').value) || 0;
+            currentData.caoutchouc = parseInt(document.getElementById('inputCaoutchouc').value) || 0;
+            currentData.moteurs = parseInt(document.getElementById('inputMoteurs').value) || 0;
+            currentData.full = parseInt(document.getElementById('inputFull').value) || 0;
+            currentData.nettoyage = parseInt(document.getElementById('inputNettoyage').value) || 0;
+            currentData.pneus = parseInt(document.getElementById('inputPneus').value) || 0;
+
+            updateDisplay();
+
+            // Sauvegarde locale
+            localStorage.setItem('bennys_data', JSON.stringify(currentData));
+
+            if (writeUrl && writeUrl !== 'COLLEZ_VOTRE_URL_APPS_SCRIPT_ICI') {
+                try {
+                    showAlert('💾 Sauvegarde dans Google Sheets...', 'warning');
+
+                    const now = new Date();
+                    const jour = String(now.getDate()).padStart(2, '0');
+                    const mois = String(now.getMonth() + 1).padStart(2, '0');
+                    const annee = now.getFullYear();
+                    const heures = String(now.getHours()).padStart(2, '0');
+                    const minutes = String(now.getMinutes()).padStart(2, '0');
+                    const secondes = String(now.getSeconds()).padStart(2, '0');
+                    const dateStr = `${jour}/${mois}/${annee} ${heures}:${minutes}:${secondes}`;
+
+                    const payload = new URLSearchParams({
+                        date: dateStr,
+                        cle: currentData.cle,
+                        boiteOutils: currentData.boiteOutils,
+                        tournevis: currentData.tournevis,
+                        ferraille: currentData.ferraille,
+                        eponge: currentData.eponge,
+                        eau: currentData.eau,
+                        solvant: currentData.solvant,
+                        caoutchouc: currentData.caoutchouc,
+                        moteurs: currentData.moteurs,
+                        full: currentData.full,
+                        nettoyage: currentData.nettoyage,
+                        pneus: currentData.pneus
+                    });
+
+                    const url = `${writeUrl}?${payload.toString()}`;
+
+                    await fetch(url, {
+                        method: 'GET',
+                        mode: 'no-cors'
+                    });
+
+                    showAlert('✅ Données envoyées à Google Sheets!', 'success');
+                    updateLastSync();
+                    setTimeout(loadFromSheet, 1500);
+
+                } catch (error) {
+                    console.error('Erreur sauvegarde:', error);
+                    showAlert('⚠️ Sauvegarde locale OK. Erreur Google Sheets.', 'warning');
+                }
+            } else {
+                showAlert('💾 Sauvegarde locale réussie! Configurez APPS_SCRIPT_URL pour Google Sheets.', 'warning');
+            }
+        }
+
+        // Charger les données au démarrage
+        window.addEventListener('load', () => {
+            const savedData = localStorage.getItem('bennys_data');
+            if (savedData) {
+                currentData = JSON.parse(savedData);
+                updateDisplay();
+            }
+            
+            if (sheetUrl && sheetUrl !== 'COLLEZ_VOTRE_URL_CSV_ICI') {
+                connectSheet();
+            } else {
+                showAlert('⚠️ Configuration requise : Modifiez les URLs dans le code', 'warning');
+            }
+        });
+    </script>
+</body>
+</html>
