@@ -218,94 +218,36 @@
         .btn {
             padding: 15px 30px;
             border: none;
-            border-radius: 12px;
+            border-radius: 10px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            margin-right: 10px;
+            width: 100%;
             margin-top: 10px;
         }
         
         .btn-primary {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            background: linear-gradient(135deg, #ff0e0e8f 0%, #cc0000 100%);
             color: white;
-        }
-        
-        .btn-primary:active {
-            transform: scale(0.98);
         }
         
         .btn-success {
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            background: linear-gradient(135deg, #28a745 0%, #218838 100%);
             color: white;
         }
         
-        .btn-secondary {
-            background: #6c757d;
-            color: white;
-        }
-        
-        .history-section {
-            padding: 25px;
-            background: #f8f9fa;
-        }
-        
-        .history-section h2 {
-            color: #212529;
-            font-size: 20px;
-            margin-bottom: 15px;
-        }
-        
-        .history-table {
-            width: 100%;
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        
-        .history-table table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        
-        .history-table th {
-            background: #2a5298;
-            color: white;
-            padding: 12px;
-            text-align: left;
-            font-size: 13px;
-            font-weight: 600;
-        }
-        
-        .history-table td {
-            padding: 12px;
-            border-bottom: 1px solid #e9ecef;
-            font-size: 14px;
-        }
-        
-        .history-table tr:last-child td {
-            border-bottom: none;
-        }
-        
-        .history-table tr:hover {
-            background: #f8f9fa;
+        .btn:active {
+            transform: scale(0.98);
         }
         
         .alert {
-            padding: 15px;
-            border-radius: 12px;
-            margin-bottom: 20px;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-weight: 500;
             display: none;
-        }
-        
-        .alert.show {
-            display: block;
-            animation: slideIn 0.3s ease;
+            animation: slideIn 0.3s ease-out;
         }
         
         @keyframes slideIn {
@@ -319,48 +261,97 @@
             }
         }
         
-        .alert-success {
+        .alert.success {
             background: #d4edda;
             color: #155724;
-            border: 1px solid #c3e6cb;
+            border: 2px solid #c3e6cb;
         }
         
-        .alert-error {
+        .alert.error {
             background: #f8d7da;
             color: #721c24;
-            border: 1px solid #f5c6cb;
+            border: 2px solid #f5c6cb;
         }
         
-        .alert-warning {
+        .alert.warning {
             background: #fff3cd;
             color: #856404;
-            border: 1px solid #ffeaa7;
+            border: 2px solid #ffeaa7;
+        }
+        
+        .history-section {
+            margin-top: 30px;
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+        }
+        
+        .history-section h2 {
+            color: #212529;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+        
+        .history-table {
+            overflow-x: auto;
+        }
+        
+        .history-table table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        
+        .history-table th,
+        .history-table td {
+            padding: 10px 8px;
+            text-align: center;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .history-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+            position: sticky;
+            top: 0;
+        }
+        
+        .history-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .history-table tr:hover {
+            background: #f8f9fa;
         }
         
         @media (max-width: 768px) {
-            .inventory-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .header h1 {
-                font-size: 24px;
-            }
-            
             .form-grid {
                 grid-template-columns: 1fr;
+            }
+            
+            .inventory-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+            
+            .history-table table {
+                font-size: 11px;
+            }
+            
+            .history-table th,
+            .history-table td {
+                padding: 8px 4px;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Header -->
         <div class="header">
-            <h1>🧰 Benny's</h1>
-            <div class="subtitle">Gestion des Stocks</div>
+            <h1>🏎️ Benny's Original Motor Works</h1>
+            <div class="subtitle">Gestion des Stocks & Inventaire</div>
         </div>
         
-        <!-- Status Bar -->
         <div class="status-bar">
             <div class="status-indicator">
                 <div class="status-dot" id="statusDot"></div>
@@ -369,15 +360,13 @@
             <div class="last-sync" id="lastSync">Jamais synchronisé</div>
         </div>
         
-        <!-- Alert Messages -->
-        <div id="alertContainer" style="padding: 0 25px; padding-top: 20px;"></div>
-        
-        <!-- Inventory Display -->
-        <div class="inventory-section">    
+        <div class="inventory-section">
+            <div id="alertBox" class="alert"></div>
+            
             <!-- Kits Finaux -->
-            <h2 class="section-title">📦 Kits Finaux</h2>
+            <h2 class="section-title">🛠️ Kits Finaux</h2>
             <div class="inventory-grid">
-                <div class="inventory-card bidon-essence">
+                <div class="inventory-card">
                     <div class="inventory-icon">⚙️</div>
                     <div class="inventory-label">Kit Moteurs</div>
                     <div class="inventory-value">
@@ -386,8 +375,8 @@
                     </div>
                 </div>
                 
-                <div class="inventory-card bidon-essence">
-                    <div class="inventory-icon">✅</div>
+                <div class="inventory-card petrole">
+                    <div class="inventory-icon">🔥</div>
                     <div class="inventory-label">Kit Full</div>
                     <div class="inventory-value">
                         <span id="stockFull">0</span>
@@ -395,8 +384,8 @@
                     </div>
                 </div>
                 
-                <div class="inventory-card bidon-essence">
-                    <div class="inventory-icon">🧹</div>
+                <div class="inventory-card bidon-vide">
+                    <div class="inventory-icon">🧼</div>
                     <div class="inventory-label">Kit Nettoyage</div>
                     <div class="inventory-value">
                         <span id="stockNettoyage">0</span>
@@ -413,7 +402,8 @@
                     </div>
                 </div>
             </div>
-                        <!-- Kits Fonderie -->
+            
+            <!-- Kits Fonderie -->
             <h2 class="section-title">📊 Kits Fonderie</h2>
             <div class="inventory-grid">
                 <div class="inventory-card essence">
@@ -452,6 +442,7 @@
                     </div>
                 </div>
             </div>
+            
             <!-- Composants des Kits -->
             <h2 class="section-title">🔧 Composants Kits Nettoyage & Pneus</h2>
             <div class="inventory-grid">
@@ -561,14 +552,21 @@
                             <th>Date/Heure</th>
                             <th>Clé</th>
                             <th>Boîte</th>
+                            <th>Tournevis</th>
                             <th>Ferraille</th>
+                            <th>Éponge</th>
+                            <th>Eau</th>
                             <th>Solvant</th>
+                            <th>Caoutchouc</th>
                             <th>Moteurs</th>
+                            <th>Full</th>
+                            <th>Nettoyage</th>
+                            <th>Pneus</th>
                         </tr>
                     </thead>
                     <tbody id="historyBody">
                         <tr>
-                            <td colspan="6" style="text-align: center; color: #6c757d;">
+                            <td colspan="13" style="text-align: center; color: #6c757d;">
                                 Aucun historique disponible
                             </td>
                         </tr>
@@ -579,7 +577,7 @@
     </div>
 
     <script>
-        const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQxIfXkcGetu0RD35mFr_7d8vyC-5QwOjyx9pKOnu9I2gMYWcz9m-pIFloY21JRJyvpRvhX91NZ7LT6/pub?gid=663379210&single=true&output=csv';
+        const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQxIfXkcGetu0RD35mFr_7d8vyC-5QwOjyx9pKOnu9I2gMYWcz9m-pIFloY21JRJyvpRvhX91NZ7LT6/pubhtml?gid=0&single=true';
         const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwGkepd8OPbFHzUYlOHRKFGhuS6CuJDjqTI7ebB0wETuwa58_Q2CBvPHPJLPsQGP1Fm/exec';
         
         let currentData = {
@@ -598,44 +596,8 @@
         };
         
         let sheetConnected = false;
-        let sheetUrl = SHEET_CSV_URL;
-        let writeUrl = APPS_SCRIPT_URL;
-
-        function showAlert(message, type = 'success') {
-            const container = document.getElementById('alertContainer');
-            const alert = document.createElement('div');
-            alert.className = `alert alert-${type} show`;
-            alert.textContent = message;
-            container.appendChild(alert);
-            
-            setTimeout(() => {
-                alert.remove();
-            }, 5000);
-        }
-
-        function updateStatus(connected) {
-            const dot = document.getElementById('statusDot');
-            const text = document.getElementById('statusText');
-            
-            if (connected) {
-                dot.classList.add('connected');
-                text.textContent = 'Connecté à Google Sheets';
-                sheetConnected = true;
-            } else {
-                dot.classList.remove('connected');
-                text.textContent = 'Déconnecté';
-                sheetConnected = false;
-            }
-        }
-
-        function updateLastSync() {
-            const lastSync = document.getElementById('lastSync');
-            const now = new Date();
-            lastSync.textContent = `Dernière synchro: ${now.toLocaleString('fr-FR')}`;
-        }
 
         function updateDisplay() {
-            // Mise à jour de l'affichage pour tous les items
             document.getElementById('stockCle').textContent = currentData.cle;
             document.getElementById('stockBoiteOutils').textContent = currentData.boiteOutils;
             document.getElementById('stockTournevis').textContent = currentData.tournevis;
@@ -649,7 +611,6 @@
             document.getElementById('stockNettoyage').textContent = currentData.nettoyage;
             document.getElementById('stockPneus').textContent = currentData.pneus;
             
-            // Mise à jour des inputs
             document.getElementById('inputCle').value = currentData.cle;
             document.getElementById('inputBoiteOutils').value = currentData.boiteOutils;
             document.getElementById('inputTournevis').value = currentData.tournevis;
@@ -665,7 +626,7 @@
         }
 
         async function connectSheet() {
-            if (!sheetUrl || sheetUrl === 'COLLEZ_VOTRE_URL_CSV_ICI') {
+            if (!SHEET_CSV_URL || SHEET_CSV_URL === 'COLLEZ_VOTRE_URL_CSV_ICI') {
                 showAlert('⚠️ Veuillez configurer SHEET_CSV_URL dans le code', 'warning');
                 return;
             }
@@ -682,7 +643,7 @@
         }
 
         async function loadFromSheet() {
-            if (!sheetUrl) {
+            if (!SHEET_CSV_URL) {
                 showAlert('❌ Veuillez d\'abord connecter un Google Sheet', 'error');
                 return;
             }
@@ -690,7 +651,7 @@
             try {
                 showAlert('📥 Chargement des données...', 'warning');
                 
-                const response = await fetch(sheetUrl);
+                const response = await fetch(SHEET_CSV_URL);
                 const csvText = await response.text();
                 
                 const lines = csvText.split('\n').filter(line => line.trim());
@@ -703,7 +664,6 @@
                 const lastLine = lines[lines.length - 1];
                 const values = parseCSVLine(lastLine);
                 
-                // Adapter selon votre structure de données dans le Google Sheet
                 if (values.length >= 13) {
                     currentData.cle = parseInt(values[1]) || 0;
                     currentData.boiteOutils = parseInt(values[2]) || 0;
@@ -760,21 +720,28 @@
             const recentLines = dataLines.slice(-10).reverse();
             
             if (recentLines.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #6c757d;">Aucun historique disponible</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="13" style="text-align: center; color: #6c757d;">Aucun historique disponible</td></tr>';
                 return;
             }
             
             recentLines.forEach(line => {
                 const values = parseCSVLine(line);
-                if (values.length >= 6) {
+                if (values.length >= 13) {
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td>${values[0]}</td>
                         <td>${values[1]}</td>
                         <td>${values[2]}</td>
+                        <td>${values[3]}</td>
                         <td>${values[4]}</td>
+                        <td>${values[5]}</td>
+                        <td>${values[6]}</td>
                         <td>${values[7]}</td>
+                        <td>${values[8]}</td>
                         <td>${values[9]}</td>
+                        <td>${values[10]}</td>
+                        <td>${values[11]}</td>
+                        <td>${values[12]}</td>
                     `;
                     tbody.appendChild(row);
                 }
@@ -782,7 +749,6 @@
         }
 
         async function saveToSheet() {
-            // Récupérer toutes les valeurs
             currentData.cle = parseInt(document.getElementById('inputCle').value) || 0;
             currentData.boiteOutils = parseInt(document.getElementById('inputBoiteOutils').value) || 0;
             currentData.tournevis = parseInt(document.getElementById('inputTournevis').value) || 0;
@@ -797,11 +763,9 @@
             currentData.pneus = parseInt(document.getElementById('inputPneus').value) || 0;
 
             updateDisplay();
-
-            // Sauvegarde locale
             localStorage.setItem('bennys_data', JSON.stringify(currentData));
 
-            if (writeUrl && writeUrl !== 'COLLEZ_VOTRE_URL_APPS_SCRIPT_ICI') {
+            if (APPS_SCRIPT_URL && APPS_SCRIPT_URL !== 'COLLEZ_VOTRE_URL_APPS_SCRIPT_ICI') {
                 try {
                     showAlert('💾 Sauvegarde dans Google Sheets...', 'warning');
 
@@ -830,7 +794,7 @@
                         pneus: currentData.pneus
                     });
 
-                    const url = `${writeUrl}?${payload.toString()}`;
+                    const url = `${APPS_SCRIPT_URL}?${payload.toString()}`;
 
                     await fetch(url, {
                         method: 'GET',
@@ -850,7 +814,38 @@
             }
         }
 
-        // Charger les données au démarrage
+        function showAlert(message, type) {
+            const alertBox = document.getElementById('alertBox');
+            alertBox.textContent = message;
+            alertBox.className = `alert ${type}`;
+            alertBox.style.display = 'block';
+            
+            setTimeout(() => {
+                alertBox.style.display = 'none';
+            }, 5000);
+        }
+
+        function updateStatus(connected) {
+            const dot = document.getElementById('statusDot');
+            const text = document.getElementById('statusText');
+            
+            if (connected) {
+                dot.classList.add('connected');
+                text.textContent = 'Connecté';
+                sheetConnected = true;
+            } else {
+                dot.classList.remove('connected');
+                text.textContent = 'Déconnecté';
+                sheetConnected = false;
+            }
+        }
+
+        function updateLastSync() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('fr-FR');
+            document.getElementById('lastSync').textContent = `Dernière sync: ${timeStr}`;
+        }
+
         window.addEventListener('load', () => {
             const savedData = localStorage.getItem('bennys_data');
             if (savedData) {
@@ -858,7 +853,7 @@
                 updateDisplay();
             }
             
-            if (sheetUrl && sheetUrl !== 'COLLEZ_VOTRE_URL_CSV_ICI') {
+            if (SHEET_CSV_URL && SHEET_CSV_URL !== 'COLLEZ_VOTRE_URL_CSV_ICI') {
                 connectSheet();
             } else {
                 showAlert('⚠️ Configuration requise : Modifiez les URLs dans le code', 'warning');
@@ -867,5 +862,3 @@
     </script>
 </body>
 </html>
-
-
