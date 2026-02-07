@@ -111,6 +111,7 @@
         }
         
         .inventory-card {
+            position: relative;
             background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
             border-radius: 15px;
             padding: 20px;
@@ -165,6 +166,31 @@
             font-size: 14px;
             color: #6c757d;
             margin-left: 5px;
+        }
+        
+        .diff-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            display: none;
+        }
+        
+        .diff-badge.show {
+            display: inline-block;
+        }
+        
+        .diff-badge.positive {
+            background: #28a745;
+            color: white;
+        }
+        
+        .diff-badge.negative {
+            background: #dc3545;
+            color: white;
         }
         
         .update-form {
@@ -367,6 +393,7 @@
             <h2 class="section-title">🛠️ Kits Finaux</h2>
             <div class="inventory-grid">
                 <div class="inventory-card">
+                    <div class="diff-badge" id="diffMoteurs"></div>
                     <div class="inventory-icon">⚙️</div>
                     <div class="inventory-label">Kit Moteurs</div>
                     <div class="inventory-value">
@@ -376,6 +403,7 @@
                 </div>
                 
                 <div class="inventory-card petrole">
+                    <div class="diff-badge" id="diffFull"></div>
                     <div class="inventory-icon">🔥</div>
                     <div class="inventory-label">Kit Full</div>
                     <div class="inventory-value">
@@ -385,6 +413,7 @@
                 </div>
                 
                 <div class="inventory-card bidon-vide">
+                    <div class="diff-badge" id="diffNettoyage"></div>
                     <div class="inventory-icon">🧼</div>
                     <div class="inventory-label">Kit Nettoyage</div>
                     <div class="inventory-value">
@@ -394,6 +423,7 @@
                 </div>
                 
                 <div class="inventory-card bidon-essence">
+                    <div class="diff-badge" id="diffPneus"></div>
                     <div class="inventory-icon">🛞</div>
                     <div class="inventory-label">Kit Pneus</div>
                     <div class="inventory-value">
@@ -407,6 +437,7 @@
             <h2 class="section-title">📊 Kits Fonderie</h2>
             <div class="inventory-grid">
                 <div class="inventory-card essence">
+                    <div class="diff-badge" id="diffCle"></div>
                     <div class="inventory-icon">🔧</div>
                     <div class="inventory-label">Clé</div>
                     <div class="inventory-value">
@@ -416,6 +447,7 @@
                 </div>
                 
                 <div class="inventory-card petrole">
+                    <div class="diff-badge" id="diffBoiteOutils"></div>
                     <div class="inventory-icon">🧰</div>
                     <div class="inventory-label">Boîte à outils</div>
                     <div class="inventory-value">
@@ -425,6 +457,7 @@
                 </div>
                 
                 <div class="inventory-card petrole">
+                    <div class="diff-badge" id="diffTournevis"></div>
                     <div class="inventory-icon">🔩</div>
                     <div class="inventory-label">Ensemble de tournevis</div>
                     <div class="inventory-value">
@@ -434,6 +467,7 @@
                 </div>
                 
                 <div class="inventory-card petrole">
+                    <div class="diff-badge" id="diffFerraille"></div>
                     <div class="inventory-icon">♻️</div>
                     <div class="inventory-label">Ferraille</div>
                     <div class="inventory-value">
@@ -447,6 +481,7 @@
             <h2 class="section-title">🔧 Composants Kits Nettoyage & Pneus</h2>
             <div class="inventory-grid">
                 <div class="inventory-card petrole">
+                    <div class="diff-badge" id="diffEponge"></div>
                     <div class="inventory-icon">🧽</div>
                     <div class="inventory-label">Éponge</div>
                     <div class="inventory-value">
@@ -456,6 +491,7 @@
                 </div>
                 
                 <div class="inventory-card bidon-vide">
+                    <div class="diff-badge" id="diffEau"></div>
                     <div class="inventory-icon">💧</div>
                     <div class="inventory-label">Eau</div>
                     <div class="inventory-value">
@@ -465,6 +501,7 @@
                 </div>
                 
                 <div class="inventory-card bidon-essence">
+                    <div class="diff-badge" id="diffSolvant"></div>
                     <div class="inventory-icon">🧪</div>
                     <div class="inventory-label">Solvant</div>
                     <div class="inventory-value">
@@ -474,6 +511,7 @@
                 </div>
                 
                 <div class="inventory-card bidon-essence">
+                    <div class="diff-badge" id="diffCaoutchouc"></div>
                     <div class="inventory-icon">⚫</div>
                     <div class="inventory-label">Caoutchouc</div>
                     <div class="inventory-value">
@@ -595,6 +633,21 @@
             pneus: 0
         };
         
+        let previousData = {
+            cle: 0,
+            boiteOutils: 0,
+            tournevis: 0,
+            ferraille: 0,
+            eponge: 0,
+            eau: 0,
+            solvant: 0,
+            caoutchouc: 0,
+            moteurs: 0,
+            full: 0,
+            nettoyage: 0,
+            pneus: 0
+        };
+        
         let sheetConnected = false;
 
         function updateDisplay() {
@@ -623,9 +676,35 @@
             document.getElementById('inputFull').value = currentData.full;
             document.getElementById('inputNettoyage').value = currentData.nettoyage;
             document.getElementById('inputPneus').value = currentData.pneus;
+            
+            showDifferences();
         }
 
-        async function connectSheet() {
+        
+        function showDifferences() {
+    const fields = ['cle', 'boiteOutils', 'tournevis', 'ferraille', 'eponge', 'eau', 'solvant', 'caoutchouc', 'moteurs', 'full', 'nettoyage', 'pneus'];
+    fields.forEach(field => {
+        const diff = currentData[field] - previousData[field];
+        const badgeId = 'diff' + field.charAt(0).toUpperCase() + field.slice(1);
+        const badge = document.getElementById(badgeId);
+        if (diff !== 0) {
+            badge.classList.add('show');
+            if (diff > 0) {
+                badge.classList.remove('negative');
+                badge.classList.add('positive');
+                badge.textContent = '+' + diff;
+            } else {
+                badge.classList.remove('positive');
+                badge.classList.add('negative');
+                badge.textContent = diff;
+            }
+        } else {
+            badge.classList.remove('show');
+        }
+    });
+}
+
+async function connectSheet() {
             if (!SHEET_CSV_URL || SHEET_CSV_URL === 'COLLEZ_VOTRE_URL_CSV_ICI') {
                 showAlert('⚠️ Veuillez configurer SHEET_CSV_URL dans le code', 'warning');
                 return;
@@ -677,6 +756,30 @@
                     currentData.full = parseInt(values[10]) || 0;
                     currentData.nettoyage = parseInt(values[11]) || 0;
                     currentData.pneus = parseInt(values[12]) || 0;
+                
+                
+                // Charger l'avant-dernière ligne dans previousData pour afficher la différence
+                if (lines.length >= 3) { // Au moins header + 2 lignes de données
+                    const previousLine = lines[lines.length - 2];
+                    const prevValues = parseCSVLine(previousLine);
+                    if (prevValues.length >= 13) {
+                        previousData.cle = parseInt(prevValues[1]) || 0;
+                        previousData.boiteOutils = parseInt(prevValues[2]) || 0;
+                        previousData.tournevis = parseInt(prevValues[3]) || 0;
+                        previousData.ferraille = parseInt(prevValues[4]) || 0;
+                        previousData.eponge = parseInt(prevValues[5]) || 0;
+                        previousData.eau = parseInt(prevValues[6]) || 0;
+                        previousData.solvant = parseInt(prevValues[7]) || 0;
+                        previousData.caoutchouc = parseInt(prevValues[8]) || 0;
+                        previousData.moteurs = parseInt(prevValues[9]) || 0;
+                        previousData.full = parseInt(prevValues[10]) || 0;
+                        previousData.nettoyage = parseInt(prevValues[11]) || 0;
+                        previousData.pneus = parseInt(prevValues[12]) || 0;
+                    }
+                } else {
+                    // S'il n'y a qu'une seule ligne de données, previousData = currentData
+                    previousData = { ...currentData };
+                }
                 }
                 
                 updateDisplay();
